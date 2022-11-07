@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.Intrinsics;
-using System.Text;
-using System.Threading.Tasks;
-using Daily.ASPNETCore.Mini.Controllers;
-using Daily.ASPNETCore.Mini.Fliter;
-using Daily.ASPNETCore.Mini.Models;
+﻿using Daily.ASPNETCore.Mini.MVC;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Daily.ASPNETCore.Mini.Services

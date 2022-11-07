@@ -19,7 +19,7 @@ namespace Daily.ASPNETCore.Mini.MiddleWare
             return null;
         }
 
-        public IApplicationBuilder UseEndpoint(Action<HttpContext> endpoint)
+        public IApplicationBuilder UseEndLogic(Action<HttpContext> endpoint)
         {
             return this;
         }

@@ -1,9 +1,9 @@
 ﻿using Daily.ASPNETCore.Mini.Common;
 using Daily.ASPNETCore.Mini.Context;
 using Daily.ASPNETCore.Mini.Context.Microsoft.AspNetCore.Http;
-using Daily.ASPNETCore.Mini.Controllers;
 using Daily.ASPNETCore.Mini.Host;
 using Daily.ASPNETCore.Mini.MiddleWare;
+using Daily.ASPNETCore.Mini.MVC;
 using Daily.ASPNETCore.Mini.NettyServer;
 using Materal.DotNetty.Server.CoreImpl;
 using Microsoft.Extensions.Configuration;
@@ -53,6 +53,7 @@ namespace Daily.ASPNETCore.Mini
             services.AddSingleton<IControllerActiver, ControllerActiver>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton(Configuration);
+            services.AddTransient<IMvcCore, MvcCoreImpl>();
             servicesAction.ForEach(action => action.Invoke(services));
             ConsoleHelper.WriteLine($"IServiceCollection initialization completed..");
             return services;

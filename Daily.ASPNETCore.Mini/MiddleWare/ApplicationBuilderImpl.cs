@@ -21,7 +21,7 @@ namespace Daily.ASPNETCore.Mini.MiddleWare
         private readonly IList<Func<Action<HttpContext>, Action<HttpContext>>> _pipelines =
             new List<Func<Action<HttpContext>, Action<HttpContext>>>();
 
-        public IApplicationBuilder UseEndpoint(Action<HttpContext> endpoint)
+        public IApplicationBuilder UseEndLogic(Action<HttpContext> endpoint)
         {
             _completeFunc = endpoint;
             return this;

@@ -4,6 +4,7 @@ using Daily.ASPNETCore.Mini.MiddleWare.Extension;
 using Daily.ASPNETCore.Mini.Services;
 using Daily.Service.TestService;
 using Microsoft.Extensions.DependencyInjection;
+using Services;
 using Test.Fliter;
 
 var builder = WebApplication.CreateBuilder();
@@ -15,6 +16,8 @@ builder.Services.AddControllers(options =>
 });
 
 builder.Services.AddTransient<ITestService, TestServiceImpl>();
+
+builder.Services.AddTransient<IUserService, UserServiceImpl>();
 
 var app = builder.Build();
 

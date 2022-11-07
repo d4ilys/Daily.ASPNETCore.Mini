@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Daily.ASPNETCore.Mini.Context;
+using Daily.ASPNETCore.Mini.MVC;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Daily.ASPNETCore.Mini.MiddleWare.Extension
 {
@@ -11,18 +13,23 @@ namespace Daily.ASPNETCore.Mini.MiddleWare.Extension
     {
         public static IApplicationBuilder UseStaticFile(this IApplicationBuilder builder)
         {
-            return builder.Use((context, next) =>
-            {
-                next();
-            });
+            return builder.Use((context, next) => { next(); });
         }
 
         public static IApplicationBuilder UseSwagger(this IApplicationBuilder builder)
         {
-            return builder.Use((context, next) =>
+            return builder.Use((context, next) => { next(); });
+        }
+
+        public static RequestDelegate UseEndpoint(this IApplicationBuilder builder, IServiceCollection services)
+        {
+            var requestDelegate = builder?.UseEndLogic(async context =>
             {
-                next();
-            });
+                //MVC逻辑在这里
+                var exector = services.BuildServiceProvider().GetService<IMvcCore>();
+                await exector.MvcExecutor(context);
+            }).Build();
+            return requestDelegate;
         }
     }
 }

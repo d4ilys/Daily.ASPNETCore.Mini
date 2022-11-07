@@ -1,17 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using Daily.ASPNETCore.Mini.Context;
-using Daily.ASPNETCore.Mini.Controllers;
-using Daily.ASPNETCore.Mini.MiddleWare;
+﻿using Daily.ASPNETCore.Mini.Context;
 using Daily.ASPNETCore.Mini.Host;
-using Daily.ASPNETCore.Mini.Models;
+using Daily.ASPNETCore.Mini.MiddleWare;
+using Daily.ASPNETCore.Mini.MiddleWare.Extension;
+using Daily.ASPNETCore.Mini.MVC;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Daily.ASPNETCore.Mini
 {
@@ -34,17 +27,11 @@ namespace Daily.ASPNETCore.Mini
         }
 
         /// <summary>
-        /// Runs an application and block the calling thread until host shutdown.
+        /// 启动主机 组装管道
         /// </summary>
-        /// <param name="url">The URL to listen to if the server hasn't been configured directly.</param>
         public Task Run(string? url = null)
         {
-            var requestDelegate = _applicationBuilder?.UseEndpoint(context =>
-            {
-                //MVC逻辑在这里
-                IControllerFactory controllersExector = new ControllerFactory();
-                controllersExector.ControllerExecutor(context);
-            }).Build();
+            var requestDelegate = _applicationBuilder.UseEndpoint(_host.Services);
 
             _host.Services.AddTransient<RequestDelegate>(provider => requestDelegate);
 

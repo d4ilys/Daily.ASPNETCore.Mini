@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Daily.ASPNETCore.Mini\Daily.ASPNETCore.Mini.csproj" />
+    <ProjectReference Include="..\Services\Services.csproj" />
   </ItemGroup>
 
   <ItemGroup>
