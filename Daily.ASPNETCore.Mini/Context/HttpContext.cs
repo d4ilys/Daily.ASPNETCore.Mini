@@ -12,5 +12,7 @@ namespace Daily.ASPNETCore.Mini.Context
         public DailyHttpResponse? Response { get; set; }
 
         public IFullHttpRequest? Request { get; set; }
+
+        public IServiceProvider? ServiceProvider { get; set; }
     }
 }

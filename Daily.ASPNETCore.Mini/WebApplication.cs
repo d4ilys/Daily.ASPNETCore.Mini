@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Daily.ASPNETCore.Mini.Context;
@@ -37,16 +38,15 @@ namespace Daily.ASPNETCore.Mini
         /// </summary>
         /// <param name="url">The URL to listen to if the server hasn't been configured directly.</param>
         public Task Run(string? url = null)
-        { 
-         
-            var requestDelegate =  _applicationBuilder?.UseEndpoint(context =>
+        {
+            var requestDelegate = _applicationBuilder?.UseEndpoint(context =>
             {
                 //MVC逻辑在这里
-                var controllersBus = _host.ServicesProvider.GetService<IControllersBus>();
-                controllersBus.ControllerExecutor(_host.ServicesProvider,context);
+                IControllerFactory controllersExector = new ControllerFactory();
+                controllersExector.ControllerExecutor(context);
             }).Build();
 
-            _host.Services.AddSingleton<RequestDelegate>(requestDelegate);
+            _host.Services.AddTransient<RequestDelegate>(provider => requestDelegate);
 
             _host?.StartAsync();
 

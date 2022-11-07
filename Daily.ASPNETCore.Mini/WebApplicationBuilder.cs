@@ -1,5 +1,6 @@
 ﻿using Daily.ASPNETCore.Mini.Common;
 using Daily.ASPNETCore.Mini.Context;
+using Daily.ASPNETCore.Mini.Context.Microsoft.AspNetCore.Http;
 using Daily.ASPNETCore.Mini.Controllers;
 using Daily.ASPNETCore.Mini.Host;
 using Daily.ASPNETCore.Mini.MiddleWare;
@@ -7,13 +8,19 @@ using Daily.ASPNETCore.Mini.NettyServer;
 using Materal.DotNetty.Server.CoreImpl;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net;
 
 namespace Daily.ASPNETCore.Mini
 {
     public class WebApplicationBuilder
     {
-        public IServiceCollection Services { get; }
+        public IServiceCollection Services { get; set; }
+
+        private List<Action<IServiceCollection>> servicesAction = new List<Action<IServiceCollection>>();
+
+        public void ConfigService(Action<IServiceCollection> action)
+        {
+            servicesAction.Add(action);
+        }
 
         public IConfiguration Configuration { get; }
 
@@ -42,15 +49,10 @@ namespace Daily.ASPNETCore.Mini
             services.AddTransient<ChannelHandler>();
             services.AddTransient<INettyServer, NettyServerImpl>();
             services.AddTransient<IHost, HostImpl>();
+            services.AddSingleton<IControllerActiver, ControllerActiver>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton(Configuration);
-            services.AddTransient<IControllersBus, ControllersBus>();
-            services.AddTransient<HttpContextDelegate>(s =>
-            {
-                return context =>
-                {
-                    services.AddScoped(provider => context);
-                };
-            });
+            servicesAction.ForEach(action => action.Invoke(services));
             ConsoleHelper.WriteLine($"IServiceCollection initialization completed..");
             return services;
         }

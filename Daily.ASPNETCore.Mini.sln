@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32922.545
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daily.ASPNETCore.Mini", "Daily.ASPNETCore.Mini\Daily.ASPNETCore.Mini.csproj", "{65172A85-003A-4B1F-A8C5-71F010E9B2BF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Daily.ASPNETCore.Mini", "Daily.ASPNETCore.Mini\Daily.ASPNETCore.Mini.csproj", "{65172A85-003A-4B1F-A8C5-71F010E9B2BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{89ED9A54-F51A-402F-825F-CEB8D4BAEE1C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{89ED9A54-F51A-402F-825F-CEB8D4BAEE1C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

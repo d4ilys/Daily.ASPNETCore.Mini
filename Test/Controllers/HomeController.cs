@@ -1,22 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Daily.ASPNETCore.Mini.Context;
+﻿using Daily.ASPNETCore.Mini.Context;
 using Daily.ASPNETCore.Mini.Controllers.HttpAttribute;
+using Daily.Service.TestService;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 
 namespace Test.Controllers
 {
-    [Route("HomeUpdate")]
+    [Route("Home")]
     public class HomeController
     {
+        [Autowired] public ITestService _testService { get; set; }
+
+        public IHttpContextAccessor _contextAccessor;
+
+        [Autowired] public IServiceProvider _serviceProvider { get; set; }
+
+        public HomeController(IHttpContextAccessor contextAccessor)
+        {
+            _contextAccessor = contextAccessor;
+        }
 
         public object Tests()
         {
-            return "1";
+            Console.WriteLine("执行Actioin");
+            var contextAccessorHttpContext = _contextAccessor.HttpContext.Request.Uri;
+            return contextAccessorHttpContext;
         }
 
         [HttpPost]

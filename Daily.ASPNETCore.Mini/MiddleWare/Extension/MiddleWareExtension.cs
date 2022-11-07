@@ -13,9 +13,7 @@ namespace Daily.ASPNETCore.Mini.MiddleWare.Extension
         {
             return builder.Use((context, next) =>
             {
-                Console.WriteLine("StaticFile中间件开始");
                 next();
-                Console.WriteLine("StaticFile中间件结束");
             });
         }
 
@@ -23,9 +21,7 @@ namespace Daily.ASPNETCore.Mini.MiddleWare.Extension
         {
             return builder.Use((context, next) =>
             {
-                Console.WriteLine("Swagger中间件开始");
                 next();
-                Console.WriteLine("Swagger中间件结束");
             });
         }
     }

@@ -7,18 +7,23 @@ using Daily.ASPNETCore.Mini.NettyServer;
 using DotNetty.Buffers;
 using DotNetty.Common.Utilities;
 using System.Net.Http;
+using Daily.ASPNETCore.Mini.Context.Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Materal.DotNetty.Server.CoreImpl
 {
     public class ChannelHandler : SimpleChannelInboundHandler<IFullHttpRequest>
     {
         private readonly RequestDelegate _requestDelegate;
-        private readonly HttpContextDelegate _httpContextDelegate;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public ChannelHandler(RequestDelegate requestDelegate, HttpContextDelegate httpContextDelegate)
+        public ChannelHandler(RequestDelegate requestDelegate, IServiceProvider serviceProvider,
+            IHttpContextAccessor contextAccessor)
         {
             _requestDelegate = requestDelegate;
-            _httpContextDelegate = httpContextDelegate;
+            _serviceProvider = serviceProvider;
+            _contextAccessor = contextAccessor;
         }
 
         protected override void ChannelRead0(IChannelHandlerContext ctx, IFullHttpRequest request)
@@ -30,7 +35,8 @@ namespace Materal.DotNetty.Server.CoreImpl
                 var httpContext = new HttpContext();
                 httpContext.Request = request;
                 httpContext.Response = new DailyHttpResponse();
-                _httpContextDelegate.Invoke(httpContext);
+                httpContext.ServiceProvider = _serviceProvider;
+                _contextAccessor.HttpContext = httpContext;
                 _requestDelegate.Invoke(httpContext);
                 //返回Response断开Http连接
                 await SendHttpResponseAsync(ctx, httpContext.Response, httpContext);
