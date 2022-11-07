@@ -1,6 +1,7 @@
 ﻿using Daily.ASPNETCore.Mini.Context;
 using Daily.ASPNETCore.Mini.Controllers.HttpAttribute;
 using Daily.Service.TestService;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Test.Controllers
@@ -9,6 +10,9 @@ namespace Test.Controllers
     public class HomeController
     {
         [Autowired] public ITestService _testService { get; set; }
+
+        [Autowired]
+        public IConfiguration Configuration { get; set; }
 
         public IHttpContextAccessor _contextAccessor;
 
@@ -21,7 +25,7 @@ namespace Test.Controllers
 
         public object Tests()
         {
-            Console.WriteLine("执行Actioin");
+            Console.WriteLine(Configuration["Daily"]);
             var contextAccessorHttpContext = _contextAccessor.HttpContext.Request.Uri;
             return contextAccessorHttpContext;
         }

@@ -32,9 +32,10 @@ namespace Daily.ASPNETCore.Mini
             //委托扩展
             configBuilder?.Invoke(configurationBuilder);
             //得到IConfiguration实例
-            Configuration = configurationBuilder.Build();
+            Configuration = configurationBuilder.AddJsonFile(Path.Combine(AppContext.BaseDirectory, "appsettings.json")).Build();
 
             ConsoleHelper.WriteLine($"Configuration initialization completed..");
+
             #endregion
 
             //IOC容器实例化

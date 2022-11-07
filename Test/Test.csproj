@@ -11,4 +11,10 @@
     <ProjectReference Include="..\Daily.ASPNETCore.Mini\Daily.ASPNETCore.Mini.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
