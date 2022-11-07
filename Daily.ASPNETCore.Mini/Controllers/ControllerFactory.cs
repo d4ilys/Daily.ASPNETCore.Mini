@@ -20,7 +20,11 @@ namespace Daily.ASPNETCore.Mini.Controllers
 {
     internal class ControllerFactory : IControllerFactory
     {
-        //执行MVC
+        /// <summary>
+        /// 执行MVC
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public async Task ControllerExecutor(HttpContext context)
         {
             var service = context.ServiceProvider;
@@ -46,35 +50,11 @@ namespace Daily.ASPNETCore.Mini.Controllers
                     var controllerType = applicationParts.FirstOrDefault().Type;
                     //创建控制器的实例
                     var controller = CreateController(controllerType, context);
+                    //处理MethodInfo
+                    var (methodInfo,
+                            bodyParams, urlParams, parameters, IsInterrupt) =
+                        MethodHandler(controllerType, context, actionName);
 
-                    //处理路由标记特性
-                    var routeActionMethed = controllerType.GetMethods()
-                        .Where(m => m.GetCustomAttribute<RouteAttribute>()?.Key == actionName).FirstOrDefault();
-                    if (routeActionMethed != null)
-                    {
-                        actionName = routeActionMethed.Name;
-                    }
-
-                    var methodInfo = controllerType.GetMethod(actionName);
-                    //如果没有方法抛出异常
-                    if (methodInfo == null)
-                    {
-                        context.Response.Status = HttpResponseStatus.BadRequest;
-                        return;
-                    }
-
-                    //处理Http请求类型特性
-                    var httpMethodAttribute = methodInfo.GetCustomAttribute<HttpMethodAttribute>();
-                    var httpMethodHandlerResult = httpMethodAttribute?.Handler(context);
-                    if (httpMethodHandlerResult != null && !httpMethodHandlerResult.Value)
-                        return;
-
-                    //获取Body类型的参数
-                    string bodyParams = GetBodyParams(context);
-                    //获取URL上的参数
-                    var urlParams = GetUrlParams(context);
-                    //获取方法上的参数
-                    var parameters = methodInfo.GetParameters();
                     object? actionResult;
                     //Action过滤器
                     var actionFilter = service.GetService<IActionFilter>();
@@ -88,38 +68,20 @@ namespace Daily.ASPNETCore.Mini.Controllers
                     //如果中断执行
                     if (!actionExecutingContext.IsInterrupt)
                     {
-                        //如果有参数则绑定参数
-                        if (parameters.Length > 0)
+                        switch (parameters.Length)
                         {
-                            object[] @params = new object[parameters.Length];
-                            for (var i = 0; i < parameters.Length; i++)
+                            //如果有参数则绑定参数
+                            case > 0:
                             {
-                                if (!string.IsNullOrEmpty(bodyParams) && parameters[i].ParameterType.IsClass &&
-                                    parameters[i].ParameterType != typeof(string))
-                                {
-                                    @params[i] = JsonConvert.DeserializeObject(bodyParams, parameters[i].ParameterType);
-                                    continue;
-                                }
-
-                                if (urlParams.ContainsKey(parameters[i].Name))
-                                {
-                                    @params[i] = urlParams[parameters[i].Name].ConvertTo(parameters[i].ParameterType);
-                                    continue;
-                                }
-
-                                if (@params[i] == null)
-                                {
-                                    break;
-                                }
+                                var @params = ParamHandler(bodyParams, urlParams, parameters);
+                                //绑定完成参数后执行这个方法
+                                actionResult = methodInfo.Invoke(controller, @params);
+                                break;
                             }
-
-                            //绑定完成参数后执行这个方法
-                            actionResult = methodInfo.Invoke(controller, @params);
-                        }
-                        else
-                        {
-                            //没有参数直接执行
-                            actionResult = methodInfo.Invoke(controller, null);
+                            default:
+                                //没有参数直接执行
+                                actionResult = methodInfo.Invoke(controller, null);
+                                break;
                         }
                     }
                     else
@@ -182,11 +144,91 @@ namespace Daily.ASPNETCore.Mini.Controllers
         }
 
         /// <summary>
+        /// 处理MethodInfo
+        /// </summary>
+        /// <param name="controllerType"></param>
+        /// <param name="context"></param>
+        /// <param name="actionName"></param>
+        /// <returns></returns>
+        private Tuple<MethodInfo, string, Dictionary<string, string>, ParameterInfo[], bool> MethodHandler(
+            Type controllerType, HttpContext context, string actionName)
+        {
+            //处理路由标记特性
+            var routeActionMethed = controllerType.GetMethods()
+                .Where(m => m.GetCustomAttribute<RouteAttribute>()?.Key == actionName).FirstOrDefault();
+            if (routeActionMethed != null)
+            {
+                actionName = routeActionMethed.Name;
+            }
+
+            //是否中断
+            var IsInterrupt = false;
+            var methodInfo = controllerType.GetMethod(actionName);
+            //如果没有方法抛出异常
+            if (methodInfo == null)
+            {
+                context.Response.Status = HttpResponseStatus.BadRequest;
+                IsInterrupt = true;
+            }
+
+            //处理Http请求类型特性
+            var httpMethodAttribute = methodInfo.GetCustomAttribute<HttpMethodAttribute>();
+            var httpMethodHandlerResult = httpMethodAttribute?.Handler(context);
+            if (httpMethodHandlerResult != null && !httpMethodHandlerResult.Value)
+                IsInterrupt = true;
+
+            //获取Body类型的参数
+            string bodyParams = GetBodyParams(context);
+            //获取URL上的参数
+            var urlParams = GetUrlParams(context);
+            //获取方法上的参数
+            var parameters = methodInfo.GetParameters();
+            return new Tuple<MethodInfo, string, Dictionary<string, string>, ParameterInfo[], bool>(methodInfo,
+                bodyParams, urlParams, parameters, IsInterrupt);
+        }
+
+        /// <summary>
+        /// 方法入参参数处理
+        /// </summary>
+        /// <param name="bodyParams"></param>
+        /// <param name="urlParams"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        private object[] ParamHandler(string bodyParams, Dictionary<string, string> urlParams,
+            ParameterInfo[] parameters)
+        {
+            object[] @params = new object[parameters.Length];
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(bodyParams) && parameters[i].ParameterType.IsClass &&
+                    parameters[i].ParameterType != typeof(string))
+                {
+                    @params[i] = JsonConvert.DeserializeObject(bodyParams, parameters[i].ParameterType);
+                    continue;
+                }
+
+                if (urlParams.ContainsKey(parameters[i].Name))
+                {
+                    @params[i] = urlParams[parameters[i].Name].ConvertTo(parameters[i].ParameterType);
+                    continue;
+                }
+
+                if (@params[i] == null)
+                {
+                    break;
+                }
+            }
+
+            return @params;
+        }
+
+
+        /// <summary>
         /// 返回值处理
         /// </summary>
         /// <param name="result"></param>
         /// <returns></returns>
-        public void ResultHandler(object actionResult, HttpContext context)
+        private void ResultHandler(object actionResult, HttpContext context)
         {
             if (actionResult is Stream stream)
             {
@@ -208,7 +250,7 @@ namespace Daily.ASPNETCore.Mini.Controllers
         /// <param name="type"></param>
         /// <param name="service"></param>
         /// <returns></returns>
-        public object CreateController(Type type, HttpContext context)
+        private object CreateController(Type type, HttpContext context)
         {
             var service = context.ServiceProvider;
             //构造函数注入
