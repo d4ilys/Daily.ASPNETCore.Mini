@@ -9,6 +9,6 @@ namespace Daily.ASPNETCore.Mini.NettyServer
 {
     public interface INettyServer
     {
-        public Task RunServer(IServiceCollection service);
+        public Task RunServer(IServiceProvider ServicesProvider);
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Daily.ASPNETCore.Mini.Context;
+using Daily.ASPNETCore.Mini.HttpContexts;
 
 namespace Daily.ASPNETCore.Mini.MiddleWare
 {
@@ -14,9 +14,8 @@ namespace Daily.ASPNETCore.Mini.MiddleWare
             return null;
         }
 
-        internal RequestDelegate Build()
+        internal void Build()
         {
-            return null;
         }
 
         public IApplicationBuilder UseEndLogic(Action<HttpContext> endpoint)

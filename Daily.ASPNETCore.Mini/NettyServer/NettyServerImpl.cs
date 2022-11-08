@@ -12,7 +12,8 @@ namespace Daily.ASPNETCore.Mini.NettyServer
 {
     public class NettyServerImpl : INettyServer
     {
-        public async Task RunServer(IServiceCollection service)
+
+        public async Task RunServer(IServiceProvider serviceProvider)
         {
             //创建ServerBootstartp
             var bootstrap = new ServerBootstrap();
@@ -29,10 +30,10 @@ namespace Daily.ASPNETCore.Mini.NettyServer
                 var channelPipeline = channel.Pipeline;
                 channelPipeline.AddLast(new HttpServerCodec());
                 channelPipeline.AddLast(new HttpObjectAggregator(65536));
-                channelPipeline.AddLast(service.BuildServiceProvider().GetService<ChannelHandler>());
+                channelPipeline.AddLast(serviceProvider.GetService<ChannelHandler>());
             }));
             //配置主机和端口号
-            var configuration = service.BuildServiceProvider().GetService<IConfiguration>();
+            var configuration = serviceProvider.GetService<IConfiguration>();
             //默认端口
             var defaultPort = "5020";
             //读取配置文件

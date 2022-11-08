@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Daily.ASPNETCore.Mini.Context
+namespace Web.TestServiceaaa
 {
-    public  class AsyncLcalHttpContext
+    public interface ITestService
     {
+        void ContructorInjectTest();
+        void PropertInjectTest();
     }
 }

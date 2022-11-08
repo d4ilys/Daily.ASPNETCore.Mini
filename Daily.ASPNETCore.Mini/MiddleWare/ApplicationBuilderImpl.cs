@@ -5,7 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Daily.ASPNETCore.Mini.Common;
-using Daily.ASPNETCore.Mini.Context;
+using Daily.ASPNETCore.Mini.HttpContexts;
 using static Daily.ASPNETCore.Mini.MiddleWare.ApplicationBuilderImpl;
 
 namespace Daily.ASPNETCore.Mini.MiddleWare
@@ -47,7 +47,7 @@ namespace Daily.ASPNETCore.Mini.MiddleWare
         }
 
         //组装中间件
-        public RequestDelegate Build()
+        public void Build()
         {
             //这个是兜底的
             var request = _completeFunc;
@@ -56,7 +56,7 @@ namespace Daily.ASPNETCore.Mini.MiddleWare
                 request = pipeline(request);
             }
             ConsoleHelper.WriteLine($"The pipeline has been assembled complete..");
-            return new RequestDelegate(request);
+            RequestDelegateProvider.RequestDelegateFuncs.Add(() => new RequestDelegate(request));
         }
     }
 }

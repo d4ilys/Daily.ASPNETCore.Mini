@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DotNetty.Buffers;
+﻿using DotNetty.Buffers;
 using DotNetty.Codecs.Http;
 
-namespace Daily.ASPNETCore.Mini.Context
+namespace Daily.ASPNETCore.Mini.HttpContexts
 { 
     public class DailyHttpResponse
     {

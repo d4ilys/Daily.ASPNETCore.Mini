@@ -1,4 +1,5 @@
 ﻿using Daily.ASPNETCore.Mini.MVC;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Daily.ASPNETCore.Mini.Services
@@ -15,10 +16,11 @@ namespace Daily.ASPNETCore.Mini.Services
                 var interfaceType = type.GetInterfaces().FirstOrDefault();
                     service.AddTransient(interfaceType, type);
             });
-            var controllersBus = service.BuildServiceProvider().GetService<IControllerActiver>();
+            IControllerActiver controllersBus =  new ControllerActiver();
             controllersBus.CreateApplicationPartManager(service);
             return service;
         }
+
     }
 
     public class MvcOptions

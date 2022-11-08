@@ -1,10 +1,10 @@
 ﻿using Daily.ASPNETCore.Mini;
 using Daily.ASPNETCore.Mini.MiddleWare.Extension;
 using Daily.ASPNETCore.Mini.Services;
-using Daily.Service.TestServiceaaa;
 using Microsoft.Extensions.DependencyInjection;
 using Services;
-using Test.Fliter;
+using Web.Fliter;
+using Web.TestServiceaaa;
 
 var builder = WebApplication.CreateBuilder();
 

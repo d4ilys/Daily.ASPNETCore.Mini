@@ -2,28 +2,25 @@
 using DotNetty.Codecs.Http;
 using DotNetty.Transport.Channels;
 using System.Threading.Tasks;
-using Daily.ASPNETCore.Mini.Context;
 using Daily.ASPNETCore.Mini.MiddleWare;
 using Daily.ASPNETCore.Mini.NettyServer;
 using DotNetty.Buffers;
 using DotNetty.Common.Utilities;
 using System.Net.Http;
 using Daily.ASPNETCore.Mini.Common;
-using Daily.ASPNETCore.Mini.Context.Microsoft.AspNetCore.Http;
+using Daily.ASPNETCore.Mini.HttpContexts;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Materal.DotNetty.Server.CoreImpl
 {
     public class ChannelHandler : SimpleChannelInboundHandler<IFullHttpRequest>
     {
-        private readonly RequestDelegate _requestDelegate;
         private readonly IServiceProvider _serviceProvider;
         private readonly IHttpContextAccessor _contextAccessor;
 
-        public ChannelHandler(RequestDelegate requestDelegate, IServiceProvider serviceProvider,
+        public ChannelHandler(IServiceProvider serviceProvider,
             IHttpContextAccessor contextAccessor)
         {
-            _requestDelegate = requestDelegate;
             _serviceProvider = serviceProvider;
             _contextAccessor = contextAccessor;
         }
@@ -37,13 +34,17 @@ namespace Materal.DotNetty.Server.CoreImpl
                 var httpContext = new HttpContext();
                 httpContext.Request = request;
                 httpContext.Response = new DailyHttpResponse();
-                httpContext.ServiceProvider = _serviceProvider;
                 _contextAccessor.HttpContext = httpContext;
-                _requestDelegate.Invoke(httpContext);
-                //返回Response断开Http连接
-                await SendHttpResponseAsync(ctx, httpContext.Response, httpContext);
+                using (var serviceScope = _serviceProvider.CreateScope())
+                {
+                    httpContext.RequestService = serviceScope.ServiceProvider;
+                    RequestDelegateProvider.CreateRequestDelegate()(httpContext);
+                    //返回Response断开Http连接
+                    await SendHttpResponseAsync(ctx, httpContext.Response, httpContext);
+                }
             });
         }
+
 
         /// <summary>
         /// 发送Http返回

@@ -1,6 +1,6 @@
 ﻿using DotNetty.Codecs.Http;
 using System;
-using Daily.ASPNETCore.Mini.Context;
+using Daily.ASPNETCore.Mini.HttpContexts;
 
 namespace Daily.ASPNETCore.Mini.MVC.HttpAttribute
 {

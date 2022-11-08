@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Daily.ASPNETCore.Mini.Fliter;
 using Daily.ASPNETCore.Mini.Fliter.Context;
 
-namespace Test.Fliter
+namespace Web.Fliter
 {
     public class CustomExceptionFliter : IExceptionFilter
     {

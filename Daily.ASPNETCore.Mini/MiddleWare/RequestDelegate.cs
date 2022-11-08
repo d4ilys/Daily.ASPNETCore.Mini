@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Daily.ASPNETCore.Mini.Context;
+using Daily.ASPNETCore.Mini.HttpContexts;
 
 namespace Daily.ASPNETCore.Mini.MiddleWare
 {
-    public delegate void HttpContextDelegate(HttpContext context);
+    public delegate void RequestDelegate(HttpContext context);
 }

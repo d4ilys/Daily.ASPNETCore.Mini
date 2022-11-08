@@ -1,7 +1,7 @@
 ﻿using Daily.ASPNETCore.Mini.Common;
-using Daily.ASPNETCore.Mini.Context;
-using Daily.ASPNETCore.Mini.Context.Microsoft.AspNetCore.Http;
 using Daily.ASPNETCore.Mini.Host;
+using Daily.ASPNETCore.Mini.HttpContexts;
+using Daily.ASPNETCore.Mini.HttpContexts.Microsoft.AspNetCore.Http;
 using Daily.ASPNETCore.Mini.MiddleWare;
 using Daily.ASPNETCore.Mini.MVC;
 using Daily.ASPNETCore.Mini.NettyServer;
@@ -15,11 +15,11 @@ namespace Daily.ASPNETCore.Mini
     {
         public IServiceCollection Services { get; set; }
 
-        private List<Action<IServiceCollection>> servicesAction = new List<Action<IServiceCollection>>();
+        private readonly List<Action<IServiceCollection>> _servicesAction = new List<Action<IServiceCollection>>();
 
         public void ConfigService(Action<IServiceCollection> action)
         {
-            servicesAction.Add(action);
+            _servicesAction.Add(action);
         }
 
         public IConfiguration Configuration { get; }
@@ -55,7 +55,7 @@ namespace Daily.ASPNETCore.Mini
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton(Configuration);
             services.AddTransient<IMvcCore, MvcCoreImpl>();
-            servicesAction.ForEach(action => action.Invoke(services));
+            _servicesAction.ForEach(action => action.Invoke(services));
             ConsoleHelper.WriteLine($"IServiceCollection initialization completed..");
             return services;
         }
@@ -63,10 +63,10 @@ namespace Daily.ASPNETCore.Mini
         //创建WebApplication
         public WebApplication Build()
         {
+            //todo:这里是错误的
             var serviceProvider = Services.BuildServiceProvider();
             var host = serviceProvider.GetService<IHost>();
             host.ServicesProvider = serviceProvider;
-            host.Services = Services;
             return new WebApplication(host);
         }
     }

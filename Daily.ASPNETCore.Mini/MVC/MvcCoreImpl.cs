@@ -6,9 +6,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Daily.ASPNETCore.Mini.Common;
-using Daily.ASPNETCore.Mini.Context;
 using Daily.ASPNETCore.Mini.Fliter;
 using Daily.ASPNETCore.Mini.Fliter.Context;
+using Daily.ASPNETCore.Mini.HttpContexts;
 using Daily.ASPNETCore.Mini.MVC.HttpAttribute;
 using Daily.ASPNETCore.Mini.MVC.Models;
 using DotNetty.Buffers;
@@ -29,7 +29,8 @@ namespace Daily.ASPNETCore.Mini.MVC
         /// <returns></returns>
         public async Task MvcExecutor(HttpContext context)
         {
-            var service = context.ServiceProvider;
+            var service = context.RequestService;
+            object? controller = null;
             try
             {
                 var applicationPartManager = service.GetService<ApplicationPartManager>();
@@ -46,15 +47,16 @@ namespace Daily.ASPNETCore.Mini.MVC
                 var applicationParts =
                     applicationPartManager.ApplicationParts.Where(part => part.Name == controllerName);
                 //如果存在控制器接着处理
-                if (applicationParts.Any())
+                var enumerable = applicationParts as ApplicationPart[] ?? applicationParts.ToArray();
+                if (enumerable.Any())
                 {
                     //根据路由匹配对应的控制器
-                    var controllerType = applicationParts.FirstOrDefault().Type;
+                    var controllerType = enumerable.FirstOrDefault().Type;
                     //创建控制器的实例
-                    var controller = CreateController(controllerType, context);
+                    controller = CreateController(controllerType, context);
                     //处理MethodInfo
                     var (methodInfo,
-                            bodyParams, urlParams, parameters, IsInterrupt) =
+                            bodyParams, urlParams, parameters, isInterrupt) =
                         MethodHandler(controllerType, context, actionName);
 
                     object? actionResult;
@@ -74,12 +76,12 @@ namespace Daily.ASPNETCore.Mini.MVC
                         {
                             //如果有参数则绑定参数
                             case > 0:
-                                {
-                                    var @params = ParamHandler(bodyParams, urlParams, parameters);
-                                    //绑定完成参数后执行这个方法
-                                    actionResult = methodInfo.Invoke(controller, @params);
-                                    break;
-                                }
+                            {
+                                var @params = ParamHandler(bodyParams, urlParams, parameters);
+                                //绑定完成参数后执行这个方法
+                                actionResult = methodInfo.Invoke(controller, @params);
+                                break;
+                            }
                             default:
                                 //没有参数直接执行
                                 actionResult = methodInfo.Invoke(controller, null);
@@ -134,7 +136,8 @@ namespace Daily.ASPNETCore.Mini.MVC
                 {
                     var exceptionContext = new ExceptionContext
                     {
-                        HttpContext = context
+                        HttpContext = context,
+                        Exception = e
                     };
                     exceptionFilter.OnException(exceptionContext);
                     if (exceptionContext.IsInterrupt)
@@ -143,7 +146,18 @@ namespace Daily.ASPNETCore.Mini.MVC
                     }
                 }
             }
-       
+            finally
+            {
+                //释放控制器
+                if (controller != null)
+                {
+                    var disposable = controller as IDisposable;
+                    if (disposable != null)
+                    {
+                        disposable.Dispose();
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -157,28 +171,28 @@ namespace Daily.ASPNETCore.Mini.MVC
             Type controllerType, HttpContext context, string actionName)
         {
             //处理路由标记特性
-            var routeActionMethed = controllerType.GetMethods()
-                .Where(m => m.GetCustomAttribute<RouteAttribute>()?.Key == actionName).FirstOrDefault();
-            if (routeActionMethed != null)
+            var routeActionMethod = controllerType
+                .GetMethods().FirstOrDefault(m => m.GetCustomAttribute<RouteAttribute>()?.Key == actionName);
+            if (routeActionMethod != null)
             {
-                actionName = routeActionMethed.Name;
+                actionName = routeActionMethod.Name;
             }
 
             //是否中断
-            var IsInterrupt = false;
+            var isInterrupt = false;
             var methodInfo = controllerType.GetMethod(actionName);
             //如果没有方法抛出异常
             if (methodInfo == null)
             {
                 context.Response.Status = HttpResponseStatus.BadRequest;
-                IsInterrupt = true;
+                isInterrupt = true;
             }
 
             //处理Http请求类型特性
             var httpMethodAttribute = methodInfo.GetCustomAttribute<HttpMethodAttribute>();
             var httpMethodHandlerResult = httpMethodAttribute?.Handler(context);
             if (httpMethodHandlerResult != null && !httpMethodHandlerResult.Value)
-                IsInterrupt = true;
+                isInterrupt = true;
 
             //获取Body类型的参数
             string bodyParams = GetBodyParams(context);
@@ -187,7 +201,7 @@ namespace Daily.ASPNETCore.Mini.MVC
             //获取方法上的参数
             var parameters = methodInfo.GetParameters();
             return new Tuple<MethodInfo, string, Dictionary<string, string>, ParameterInfo[], bool>(methodInfo,
-                bodyParams, urlParams, parameters, IsInterrupt);
+                bodyParams, urlParams, parameters, isInterrupt);
         }
 
         /// <summary>
@@ -215,11 +229,6 @@ namespace Daily.ASPNETCore.Mini.MVC
                     @params[i] = urlParams[parameters[i].Name].ConvertTo(parameters[i].ParameterType);
                     continue;
                 }
-
-                if (@params[i] == null)
-                {
-                    break;
-                }
             }
 
             return @params;
@@ -229,7 +238,8 @@ namespace Daily.ASPNETCore.Mini.MVC
         /// <summary>
         /// 返回值处理
         /// </summary>
-        /// <param name="result"></param>
+        /// <param name="actionResult"></param>
+        /// <param name="context"></param>
         /// <returns></returns>
         private void ResultHandler(object actionResult, HttpContext context)
         {
@@ -251,17 +261,17 @@ namespace Daily.ASPNETCore.Mini.MVC
         /// 创建控制器实例
         /// </summary>
         /// <param name="type"></param>
-        /// <param name="service"></param>
-        /// <returns></returns>
+        /// <param name="context"></param>
+        /// <returns></returns> 
         private object CreateController(Type type, HttpContext context)
         {
-            var service = context.ServiceProvider;
+            var service = context.RequestService;
             //构造函数注入
             //获取所有构造函数
-            var contruncts = type.GetConstructors();
-            var constructor = contruncts.OrderByDescending(c => c.GetParameters().Length)
-                .FirstOrDefault();
+            var constructs = type.GetConstructors();
+            var constructor = constructs.MaxBy(c => c.GetParameters().Length);
             var constructorParamList = new List<object>();
+            var a = Assembly.Load("Test").GetTypes();
             //有参数开始构造
             if (constructor.GetParameters().Any())
             {
@@ -271,10 +281,14 @@ namespace Daily.ASPNETCore.Mini.MVC
                     constructorParamList.Add(paramObject);
                 }
             }
+
             //创建实例
             var controllerInstance = constructorParamList.Any()
                 ? Activator.CreateInstance(type, constructorParamList.ToArray())
                 : Activator.CreateInstance(type);
+            //更好的实现方式 
+            //var controllerInstance = ActivatorUtilities.CreateInstance(service, type);
+
             //模拟SpringBoot字段注解注入
             foreach (var propertyInfo in type.GetProperties().Where(p => p.IsDefined(typeof(AutowiredAttribute), true)))
             {
@@ -294,12 +308,14 @@ namespace Daily.ASPNETCore.Mini.MVC
         {
             string controllerName = string.Empty;
             string actionName = string.Empty;
-            bool isSucces = true;
-            var configuration = context.ServiceProvider.GetService<IConfiguration>();
-            var prefix = string.IsNullOrWhiteSpace(configuration["MvcConfig:RoutPrefix"]) ? "api" : configuration["MvcConfig:RoutPrefix"];
+            bool isSuccess = true;
+            var configuration = context.RequestService.GetService<IConfiguration>();
+            var prefix = string.IsNullOrWhiteSpace(configuration["MvcConfig:RoutPrefix"])
+                ? "api"
+                : configuration["MvcConfig:RoutPrefix"];
             if (!context.Request.Uri.StartsWith($"/{prefix}/"))
             {
-                isSucces = false;
+                isSuccess = false;
             }
             else
             {
@@ -311,13 +327,14 @@ namespace Daily.ASPNETCore.Mini.MVC
                 }
             }
 
-            return new Tuple<string, string, bool>(controllerName, actionName, isSucces);
+            return new Tuple<string, string, bool>(controllerName, actionName, isSuccess);
         }
 
         /// <summary>
         /// 获取流返回
         /// </summary>
         /// <param name="stream"></param>
+        /// <param name="context"></param>
         /// <returns></returns>
         private void GetStreamResponse(Stream stream, HttpContext context)
         {
@@ -335,6 +352,7 @@ namespace Daily.ASPNETCore.Mini.MVC
         /// 获取Json返回
         /// </summary>
         /// <param name="actionResult"></param>
+        /// <param name="context"></param>
         /// <returns></returns>
         private void GetJsonResponse(object actionResult, HttpContext context)
         {
@@ -342,7 +360,7 @@ namespace Daily.ASPNETCore.Mini.MVC
             if (!context.Response.Headers.Contains(new AsciiString(mime)))
                 context.Response.Headers.Add(HttpHeaderNames.ContentType, mime);
             var body = JsonConvert.SerializeObject(actionResult);
-            byte[] bodyData = string.IsNullOrEmpty(body) ? new byte[0] : Encoding.UTF8.GetBytes(body);
+            byte[] bodyData = string.IsNullOrEmpty(body) ? Array.Empty<byte>() : Encoding.UTF8.GetBytes(body);
             context.Response.Content = Unpooled.WrappedBuffer(bodyData);
         }
 
@@ -350,6 +368,7 @@ namespace Daily.ASPNETCore.Mini.MVC
         /// 获取文本返回
         /// </summary>
         /// <param name="actionResult"></param>
+        /// <param name="context"></param>
         /// <returns></returns>
         private void GetTextResponse(object actionResult, HttpContext context)
         {
@@ -357,14 +376,14 @@ namespace Daily.ASPNETCore.Mini.MVC
             if (!context.Response.Headers.Contains(new AsciiString(mime)))
                 context.Response.Headers.Add(HttpHeaderNames.ContentType, mime);
             var body = actionResult.ToString();
-            byte[] bodyData = string.IsNullOrEmpty(body) ? new byte[0] : Encoding.UTF8.GetBytes(body);
+            byte[] bodyData = string.IsNullOrEmpty(body) ? Array.Empty<byte>() : Encoding.UTF8.GetBytes(body);
             context.Response.Content = Unpooled.WrappedBuffer(bodyData);
         }
 
         /// <summary>
         /// 获得Body参数
         /// </summary>
-        /// <param name="request"></param>
+        /// <param name="context"></param>
         /// <returns></returns>
         private string GetBodyParams(HttpContext context)
         {
@@ -375,7 +394,7 @@ namespace Daily.ASPNETCore.Mini.MVC
         /// <summary>
         /// 获取Url参数
         /// </summary>
-        /// <param name="request"></param>
+        /// <param name="context"></param>
         /// <returns></returns>
         private Dictionary<string, string> GetUrlParams(HttpContext context)
         {
