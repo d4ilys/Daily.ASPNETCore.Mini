@@ -29,6 +29,8 @@ namespace Test.Controllers
         /// <returns></returns>
         public string TestPropertyInject()
         {
+            //这里为空
+            _testService?.ContructorInjectTest();
             return _userService.Test("测试");
         }
 
