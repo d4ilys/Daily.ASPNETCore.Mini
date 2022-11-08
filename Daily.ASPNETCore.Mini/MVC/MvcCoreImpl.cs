@@ -353,7 +353,7 @@ namespace Daily.ASPNETCore.Mini.MVC
         /// <returns></returns>
         private void GetTextResponse(object actionResult, HttpContext context)
         {
-            var mime = "application/text;charset=utf-8";
+            var mime = "text/plain;charset-UTF-8";
             if (!context.Response.Headers.Contains(new AsciiString(mime)))
                 context.Response.Headers.Add(HttpHeaderNames.ContentType, mime);
             var body = actionResult.ToString();
