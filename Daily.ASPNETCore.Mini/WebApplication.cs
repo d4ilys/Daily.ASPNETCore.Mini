@@ -3,6 +3,8 @@ using Daily.ASPNETCore.Mini.Host;
 using Daily.ASPNETCore.Mini.MiddleWare;
 using Daily.ASPNETCore.Mini.MiddleWare.Extension;
 using Daily.ASPNETCore.Mini.MVC;
+using Daily.ASPNETCore.Mini.NettyServer;
+using Materal.DotNetty.Server.CoreImpl;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -35,7 +37,7 @@ namespace Daily.ASPNETCore.Mini
 
             _host.Services.AddTransient<RequestDelegate>(provider => requestDelegate);
 
-            _host?.StartAsync();
+             _host?.StartAsync();
 
             return Task.CompletedTask;
         }

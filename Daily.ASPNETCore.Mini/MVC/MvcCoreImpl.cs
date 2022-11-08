@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -13,6 +14,7 @@ using Daily.ASPNETCore.Mini.MVC.Models;
 using DotNetty.Buffers;
 using DotNetty.Codecs.Http;
 using DotNetty.Common.Utilities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
@@ -141,6 +143,7 @@ namespace Daily.ASPNETCore.Mini.MVC
                     }
                 }
             }
+       
         }
 
         /// <summary>
@@ -292,7 +295,9 @@ namespace Daily.ASPNETCore.Mini.MVC
             string controllerName = string.Empty;
             string actionName = string.Empty;
             bool isSucces = true;
-            if (!context.Request.Uri.StartsWith("/api/"))
+            var configuration = context.ServiceProvider.GetService<IConfiguration>();
+            var prefix = string.IsNullOrWhiteSpace(configuration["MvcConfig:RoutPrefix"]) ? "api" : configuration["MvcConfig:RoutPrefix"];
+            if (!context.Request.Uri.StartsWith($"/{prefix}/"))
             {
                 isSucces = false;
             }

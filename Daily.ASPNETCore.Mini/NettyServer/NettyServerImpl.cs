@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using Daily.ASPNETCore.Mini.Common;
+﻿using Daily.ASPNETCore.Mini.Common;
 using DotNetty.Codecs.Http;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
 using Materal.DotNetty.Server.CoreImpl;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net;
 
 namespace Daily.ASPNETCore.Mini.NettyServer
 {
@@ -22,7 +17,7 @@ namespace Daily.ASPNETCore.Mini.NettyServer
             //创建ServerBootstartp
             var bootstrap = new ServerBootstrap();
             //绑定事件组
-            IEventLoopGroup mainGroup = new MultithreadEventLoopGroup(1);
+            IEventLoopGroup mainGroup = new MultithreadEventLoopGroup(3);
             IEventLoopGroup workGroup = new MultithreadEventLoopGroup();
             bootstrap.Group(mainGroup, workGroup);
             //绑定服务端的通道
@@ -37,11 +32,17 @@ namespace Daily.ASPNETCore.Mini.NettyServer
                 channelPipeline.AddLast(service.BuildServiceProvider().GetService<ChannelHandler>());
             }));
             //配置主机和端口号
-            IPAddress ipAddress = GetTrueIPAddress();
-            var port = 9616;
-            IChannel bootstrapChannel = await bootstrap.BindAsync(ipAddress, port);
+            var configuration = service.BuildServiceProvider().GetService<IConfiguration>();
+            //默认端口
+            var defaultPort = "5020";
+            //读取配置文件
+            var portConfig = configuration["HostConfig:Port"];
+            var ipConfig = configuration["HostConfig:Host"];
+            var port = string.IsNullOrWhiteSpace(portConfig) ? defaultPort : portConfig;
+            IPAddress ipAddress = string.IsNullOrWhiteSpace(ipConfig) ? GetTrueIPAddress() : IPAddress.Parse(ipConfig);
+            IChannel bootstrapChannel = await bootstrap.BindAsync(ipAddress, Convert.ToInt32(port));
             ConsoleHelper.WriteLine($"Now listening on：http://{ipAddress.ToString()}:{port}..");
-            WaitServerStop();
+            await WaitServerStopAsync();
             //第六步：停止服务
             await bootstrapChannel.CloseAsync();
         }
@@ -49,12 +50,12 @@ namespace Daily.ASPNETCore.Mini.NettyServer
         /// <summary>
         /// 等待服务停止
         /// </summary>
-        private void WaitServerStop()
+        private async Task WaitServerStopAsync()
         {
             ConsoleHelper.WriteLine("Application started. Press Ctrl+C to shut down..");
             Console.CancelKeyPress += (sender, e) => { Environment.Exit(0); };
             while (true)
-                Thread.Sleep(100);
+                await Task.Delay(100);
         }
 
         /// <summary>

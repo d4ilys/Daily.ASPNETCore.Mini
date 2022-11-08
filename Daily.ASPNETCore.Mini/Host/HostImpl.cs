@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Daily.ASPNETCore.Mini.NettyServer;
+﻿using Daily.ASPNETCore.Mini.NettyServer;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Daily.ASPNETCore.Mini.Host
@@ -14,10 +9,11 @@ namespace Daily.ASPNETCore.Mini.Host
 
         public IServiceCollection Services { get; set; }
 
-        public async Task StartAsync()
+        public Task StartAsync()
         {
             var nettyServer = Services.BuildServiceProvider().GetService<INettyServer>();
             nettyServer.RunServer(Services).GetAwaiter().GetResult();
+            return Task.CompletedTask;
         }
 
         public Task StopAsync()

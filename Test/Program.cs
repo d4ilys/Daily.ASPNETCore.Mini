@@ -1,5 +1,4 @@
 ﻿using Daily.ASPNETCore.Mini;
-using Daily.ASPNETCore.Mini.Fliter;
 using Daily.ASPNETCore.Mini.MiddleWare.Extension;
 using Daily.ASPNETCore.Mini.Services;
 using Daily.Service.TestService;
@@ -26,3 +25,4 @@ app.UseStaticFile();
 app.UseSwagger();
 
 app.Run();
+
