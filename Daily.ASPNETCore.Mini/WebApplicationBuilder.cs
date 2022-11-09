@@ -48,14 +48,21 @@ namespace Daily.ASPNETCore.Mini
         public IServiceCollection CreateServiceCollection()
         {
             var services = new ServiceCollection();
+            //中间件创建
             services.AddTransient<IApplicationBuilder, ApplicationBuilderImpl>();
+            //HttpHandler
             services.AddTransient<ChannelHandler>();
+            //NettyServer
             services.AddTransient<INettyServer, NettyServerImpl>();
+            //主机
             services.AddTransient<IHost, HostImpl>();
-            services.AddSingleton<IControllerActiver, ControllerActiver>();
+            //HttpContext存储器
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            //IConfiguration
             services.AddSingleton(Configuration);
+            //Mvc核心逻辑
             services.AddTransient<IMvcCore, MvcCoreImpl>();
+            //执行临时委托集合中的注册
             _servicesAction.ForEach(action => action.Invoke(services));
             ConsoleHelper.WriteLine($"IServiceCollection initialization completed..");
             return services;
@@ -64,10 +71,13 @@ namespace Daily.ASPNETCore.Mini
         //创建WebApplication
         public WebApplication Build()
         {
-            //todo:这里是错误的
+            //生成IServiceProvider
             var serviceProvider = Services.BuildServiceProvider();
+            //实例化Host
             var host = serviceProvider.GetService<IHost>();
+            //将IServiceProvider赋值给host中的属性，方面下端使用
             host.ApplicationServices = serviceProvider;
+            //创建返回新的WebApplication对象，构造函数传入Host
             return new WebApplication(host);
         }
     }
