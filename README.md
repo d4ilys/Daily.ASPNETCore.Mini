@@ -1,9 +1,5 @@
 # Daily.ASPNETCore.Mini
- ASP.NET Core Mini 版本，仅用于学习研究
-
-采用DotNetty处理HTTP
-
-HTTP管道、过滤器等均有实现
+模仿 ASP.NET Core 6.0 实现的迷你版本，支持Http请求处理、 Http管道、MVC逻辑
 
 本项目可直接运行-将Test设置为启动项
 
