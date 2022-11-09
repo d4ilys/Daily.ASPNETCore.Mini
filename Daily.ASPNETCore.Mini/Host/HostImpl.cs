@@ -6,12 +6,12 @@ namespace Daily.ASPNETCore.Mini.Host
 {
     internal class HostImpl:IHost
     {
-        public IServiceProvider ServicesProvider { get; set; }
+        public IServiceProvider ApplicationServices { get; set; }
 
         public Task StartAsync()
         {
-            var nettyServer = ServicesProvider.GetService<INettyServer>();
-            nettyServer.RunServer(ServicesProvider).GetAwaiter().GetResult();
+            var nettyServer = ApplicationServices.GetService<INettyServer>();
+            nettyServer.RunServer(ApplicationServices).GetAwaiter().GetResult();
             return Task.CompletedTask;
         }
 

@@ -21,7 +21,7 @@ namespace Microsoft.AspNetCore.Builder.Extension
 
         public static void UseEndpoint(this IApplicationBuilder builder, IServiceProvider services)
         {
-            builder?.UseEndLogic(async context =>
+            builder?.UseEndpointMiddleware(async context =>
             {
                 //MVC逻辑在这里
                 var exector = services.GetService<IMvcCore>();

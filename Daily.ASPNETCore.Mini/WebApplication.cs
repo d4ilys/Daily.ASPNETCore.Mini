@@ -25,7 +25,7 @@ namespace Daily.ASPNETCore.Mini
             if (host != null)
             {
                 Host = host;
-                ApplicationBuilder = Host.ServicesProvider.GetService<IApplicationBuilder>();
+                ApplicationBuilder = Host.ApplicationServices.GetService<IApplicationBuilder>();
             }
         }
 
@@ -34,7 +34,7 @@ namespace Daily.ASPNETCore.Mini
         /// </summary>
         public Task Run(string? url = null)
         {
-            ApplicationBuilder.UseEndpoint(Host.ServicesProvider);
+            ApplicationBuilder.UseEndpoint(Host.ApplicationServices);
 
             Host?.StartAsync();
 

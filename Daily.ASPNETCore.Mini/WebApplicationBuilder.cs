@@ -67,7 +67,7 @@ namespace Daily.ASPNETCore.Mini
             //todo:这里是错误的
             var serviceProvider = Services.BuildServiceProvider();
             var host = serviceProvider.GetService<IHost>();
-            host.ServicesProvider = serviceProvider;
+            host.ApplicationServices = serviceProvider;
             return new WebApplication(host);
         }
     }

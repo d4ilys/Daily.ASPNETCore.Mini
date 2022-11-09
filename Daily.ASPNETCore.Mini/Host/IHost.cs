@@ -10,7 +10,7 @@ namespace Daily.ASPNETCore.Mini.Host
 {
     public interface IHost
     {
-        IServiceProvider ServicesProvider { get; set; }
+        IServiceProvider ApplicationServices { get; set; }
 
         Task StartAsync();
 
