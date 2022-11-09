@@ -58,7 +58,12 @@ namespace Daily.ASPNETCore.Mini.MVC
                     var (methodInfo,
                             bodyParams, urlParams, parameters, isInterrupt) =
                         MethodHandler(controllerType, context, actionName);
-
+                    //如果没有Action
+                    if (isInterrupt)
+                    {
+                        context.Response.Status = HttpResponseStatus.BadRequest;
+                        return;
+                    }
                     object? actionResult;
                     //Action过滤器
                     var actionFilter = service.GetService<IActionFilter>();
@@ -182,24 +187,26 @@ namespace Daily.ASPNETCore.Mini.MVC
             var isInterrupt = false;
             var methodInfo = controllerType.GetMethod(actionName);
             //如果没有方法抛出异常
-            if (methodInfo == null)
+            if (methodInfo != null)
             {
                 context.Response.Status = HttpResponseStatus.BadRequest;
+                //处理Http请求类型特性
+                var httpMethodAttribute = methodInfo.GetCustomAttribute<HttpMethodAttribute>();
+                var httpMethodHandlerResult = httpMethodAttribute?.Handler(context);
+                if (httpMethodHandlerResult != null && !httpMethodHandlerResult.Value)
+                    isInterrupt = true;
+            }
+            else
+            {
                 isInterrupt = true;
             }
-
-            //处理Http请求类型特性
-            var httpMethodAttribute = methodInfo.GetCustomAttribute<HttpMethodAttribute>();
-            var httpMethodHandlerResult = httpMethodAttribute?.Handler(context);
-            if (httpMethodHandlerResult != null && !httpMethodHandlerResult.Value)
-                isInterrupt = true;
 
             //获取Body类型的参数
             string bodyParams = GetBodyParams(context);
             //获取URL上的参数
             var urlParams = GetUrlParams(context);
             //获取方法上的参数
-            var parameters = methodInfo.GetParameters();
+            var parameters = methodInfo?.GetParameters();
             return new Tuple<MethodInfo, string, Dictionary<string, string>, ParameterInfo[], bool>(methodInfo,
                 bodyParams, urlParams, parameters, isInterrupt);
         }

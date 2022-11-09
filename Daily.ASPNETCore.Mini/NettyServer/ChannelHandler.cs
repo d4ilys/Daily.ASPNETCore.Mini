@@ -34,7 +34,9 @@ namespace Materal.DotNetty.Server.CoreImpl
                 var httpContext = new HttpContext();
                 httpContext.Request = request;
                 httpContext.Response = new DailyHttpResponse();
+                //AsyncLocal线程安全
                 _contextAccessor.HttpContext = httpContext;
+                //创建Scope
                 using (var serviceScope = _serviceProvider.CreateScope())
                 {
                     httpContext.RequestService = serviceScope.ServiceProvider;

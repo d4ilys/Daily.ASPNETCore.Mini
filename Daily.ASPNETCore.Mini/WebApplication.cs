@@ -34,7 +34,6 @@ namespace Daily.ASPNETCore.Mini
         /// </summary>
         public Task Run(string? url = null)
         {
-            //TODO：这里在HTTP接收那里创建
             ApplicationBuilder.UseEndpoint(Host.ServicesProvider);
 
             Host?.StartAsync();

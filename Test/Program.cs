@@ -3,7 +3,6 @@ using Daily.ASPNETCore.Mini;
 using Microsoft.AspNetCore.Builder.Extension;
 using Daily.ASPNETCore.Mini.Services;
 using Daily.Service.TestServiceaaa;
-using IGeekFan.AspNetCore.Knife4jUI;
 using Microsoft.Extensions.DependencyInjection;
 using Services;
 using Test.Fliter;
@@ -19,8 +18,6 @@ builder.Services.AddControllers(options =>
 builder.Services.AddTransient<ITestService, TestServiceImpl>();
 
 builder.Services.AddTransient<IUserService, UserServiceImpl>();
-
-builder.Services.AddKnife4UI(builder.Configuration);
 
 var app = builder.Build();
 

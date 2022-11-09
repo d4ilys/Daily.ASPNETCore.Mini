@@ -3,6 +3,7 @@ using Daily.ASPNETCore.Mini.HttpContexts;
 using Daily.ASPNETCore.Mini.MVC.ControllersRule;
 using Daily.ASPNETCore.Mini.MVC.HttpAttribute;
 using Daily.Service.TestServiceaaa;
+using Microsoft.Extensions.DependencyInjection;
 using Services;
 
 namespace Test.Controllers
@@ -42,6 +43,17 @@ namespace Test.Controllers
         public string? TestConstructorInject()
         {
             return HttpContextAccessor.HttpContext.Request?.Uri;
+        }
+
+        /// <summary>
+        /// 测试HttpContext RequestService
+        /// </summary>
+        /// <returns></returns>
+        public string? TestHttpContextRequestServiceInject()
+        {
+           var iTestService =  HttpContextAccessor.HttpContext.RequestService.GetService<ITestService>();
+           iTestService.PropertInjectTest();
+            return "请看控制台";
         }
     }
 }
