@@ -3,19 +3,26 @@ using Daily.ASPNETCore.Mini.MVC.HttpAttribute;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using Daily.ASPNETCore.Mini.MVC.Models;
+using System.IO;
 
 namespace Daily.ASPNETCore.Mini.MVC
 {
     public class ControllerActiver : IControllerActiver
     {
-        public void CreateApplicationPartManager(IServiceCollection service)
+        public void CreateApplicationPartManager(IServiceCollection service, Assembly? assemblyOther = null)
         {
             //获取所有dll
             var allDll = Directory.GetFiles(AppContext.BaseDirectory, "*.dll");
             var applicationPartManager = new ApplicationPartManager();
             foreach (var path in allDll)
             {
+                var dllName = Path.GetFileNameWithoutExtension(path);
+                //var assembly = Assembly.Load(dllName);
+                //错误的方式
                 var assembly = Assembly.LoadFile(path);
+                if (assemblyOther?.FullName == assembly.FullName)
+                    assembly = assemblyOther;
+
                 foreach (var type in assembly.GetTypes())
                 {
                     //判断是不是控制器
@@ -30,6 +37,7 @@ namespace Daily.ASPNETCore.Mini.MVC
                     }
                 }
             }
+
 
             //添加所有的控制器信息到
             service.AddSingleton(applicationPartManager);
@@ -78,6 +86,5 @@ namespace Daily.ASPNETCore.Mini.MVC
                 return string.Empty;
             }
         }
-
     }
 }

@@ -268,26 +268,26 @@ namespace Daily.ASPNETCore.Mini.MVC
             var service = context.RequestService;
             //构造函数注入
             //获取所有构造函数
-            var constructs = type.GetConstructors();
-            var constructor = constructs.MaxBy(c => c.GetParameters().Length);
-            var constructorParamList = new List<object>();
-            var a = Assembly.Load("Test").GetTypes();
-            //有参数开始构造
-            if (constructor.GetParameters().Any())
-            {
-                foreach (var paramInfo in constructor.GetParameters())
-                {
-                    var paramObject = service.GetService(paramInfo.ParameterType);
-                    constructorParamList.Add(paramObject);
-                }
-            }
+            //var constructs = type.GetConstructors();
+            //var constructor = constructs.MaxBy(c => c.GetParameters().Length);
+            //var constructorParamList = new List<object>();
+            //var a = Assembly.Load("Test").GetTypes();
+            ////有参数开始构造
+            //if (constructor.GetParameters().Any())
+            //{
+            //    foreach (var paramInfo in constructor.GetParameters())
+            //    {
+            //        var paramObject = service.GetService(paramInfo.ParameterType);
+            //        constructorParamList.Add(paramObject);
+            //    }
+            //}
 
-            //创建实例
-            var controllerInstance = constructorParamList.Any()
-                ? Activator.CreateInstance(type, constructorParamList.ToArray())
-                : Activator.CreateInstance(type);
+            ////创建实例
+            //var controllerInstance = constructorParamList.Any()
+            //    ? Activator.CreateInstance(type, constructorParamList.ToArray())
+            //    : Activator.CreateInstance(type);
             //更好的实现方式 
-            //var controllerInstance = ActivatorUtilities.CreateInstance(service, type);
+            var controllerInstance = ActivatorUtilities.CreateInstance(service, type);
 
             //模拟SpringBoot字段注解注入
             foreach (var propertyInfo in type.GetProperties().Where(p => p.IsDefined(typeof(AutowiredAttribute), true)))

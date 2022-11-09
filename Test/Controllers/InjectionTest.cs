@@ -1,4 +1,5 @@
-﻿using Daily.ASPNETCore.Mini.HttpContexts;
+﻿using System.Reflection;
+using Daily.ASPNETCore.Mini.HttpContexts;
 using Daily.ASPNETCore.Mini.MVC.ControllersRule;
 using Daily.ASPNETCore.Mini.MVC.HttpAttribute;
 using Daily.Service.TestServiceaaa;
@@ -15,7 +16,7 @@ namespace Test.Controllers
         //构造函数注入
         public IUserService UserService;
 
-        private readonly ITestService? TestService;
+        private readonly ITestService TestService;
 
         public InjectionTest(IUserService userService, ITestService testService)
         {

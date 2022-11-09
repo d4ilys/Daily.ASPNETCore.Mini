@@ -1,4 +1,5 @@
-﻿using Daily.ASPNETCore.Mini;
+﻿using System.Reflection;
+using Daily.ASPNETCore.Mini;
 using Daily.ASPNETCore.Mini.MiddleWare.Extension;
 using Daily.ASPNETCore.Mini.Services;
 using Daily.Service.TestServiceaaa;
