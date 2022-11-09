@@ -1,8 +1,9 @@
 ﻿using System.Reflection;
 using Daily.ASPNETCore.Mini;
-using Daily.ASPNETCore.Mini.MiddleWare.Extension;
+using Microsoft.AspNetCore.Builder.Extension;
 using Daily.ASPNETCore.Mini.Services;
 using Daily.Service.TestServiceaaa;
+using IGeekFan.AspNetCore.Knife4jUI;
 using Microsoft.Extensions.DependencyInjection;
 using Services;
 using Test.Fliter;
@@ -19,10 +20,10 @@ builder.Services.AddTransient<ITestService, TestServiceImpl>();
 
 builder.Services.AddTransient<IUserService, UserServiceImpl>();
 
+builder.Services.AddKnife4UI(builder.Configuration);
+
 var app = builder.Build();
 
 app.UseStaticFile();
-
-app.UseSwagger();
 
 app.Run();

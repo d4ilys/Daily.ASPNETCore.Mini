@@ -8,6 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCore.Knife4jUI" Version="1.0.6" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Daily.ASPNETCore.Mini\Daily.ASPNETCore.Mini.csproj" />
     <ProjectReference Include="..\Services\Services.csproj" />
   </ItemGroup>

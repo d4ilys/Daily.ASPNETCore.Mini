@@ -17,9 +17,9 @@ namespace Daily.ASPNETCore.Mini.MVC
             foreach (var path in allDll)
             {
                 var dllName = Path.GetFileNameWithoutExtension(path);
-                //var assembly = Assembly.Load(dllName);
+                var assembly = Assembly.Load(dllName);
                 //错误的方式
-                var assembly = Assembly.LoadFile(path);
+                //var assembly = Assembly.LoadFile(path);
                 if (assemblyOther?.FullName == assembly.FullName)
                     assembly = assemblyOther;
 

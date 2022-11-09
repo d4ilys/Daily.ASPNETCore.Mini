@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Daily.ASPNETCore.Mini.HttpContexts;
 
-namespace Daily.ASPNETCore.Mini.MiddleWare
+namespace Microsoft.AspNetCore.Builder
 {
     public class RequestDelegateProvider
     {

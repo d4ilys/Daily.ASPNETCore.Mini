@@ -1,4 +1,4 @@
-﻿using Daily.ASPNETCore.Mini.MiddleWare;
+﻿using Microsoft.AspNetCore.Builder;
 using Daily.ASPNETCore.Mini.NettyServer;
 using Microsoft.Extensions.DependencyInjection;
 

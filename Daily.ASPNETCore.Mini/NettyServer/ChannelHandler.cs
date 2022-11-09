@@ -2,7 +2,7 @@
 using DotNetty.Codecs.Http;
 using DotNetty.Transport.Channels;
 using System.Threading.Tasks;
-using Daily.ASPNETCore.Mini.MiddleWare;
+using Microsoft.AspNetCore.Builder;
 using Daily.ASPNETCore.Mini.NettyServer;
 using DotNetty.Buffers;
 using DotNetty.Common.Utilities;

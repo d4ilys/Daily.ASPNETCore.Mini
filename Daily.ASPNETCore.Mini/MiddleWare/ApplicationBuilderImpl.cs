@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Daily.ASPNETCore.Mini.Common;
 using Daily.ASPNETCore.Mini.HttpContexts;
-using static Daily.ASPNETCore.Mini.MiddleWare.ApplicationBuilderImpl;
+using Microsoft.AspNetCore.Builder;
 
 namespace Daily.ASPNETCore.Mini.MiddleWare
 {

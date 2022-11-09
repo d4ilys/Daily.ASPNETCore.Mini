@@ -1,7 +1,8 @@
 ﻿using Daily.ASPNETCore.Mini.Host;
 using Daily.ASPNETCore.Mini.HttpContexts;
 using Daily.ASPNETCore.Mini.MiddleWare;
-using Daily.ASPNETCore.Mini.MiddleWare.Extension;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder.Extension;
 using Daily.ASPNETCore.Mini.MVC;
 using Daily.ASPNETCore.Mini.NettyServer;
 using Materal.DotNetty.Server.CoreImpl;
@@ -15,7 +16,7 @@ namespace Daily.ASPNETCore.Mini
         public static WebApplicationBuilder CreateBuilder(Action<IConfigurationBuilder>? configBuilder = null) =>
             new(configBuilder);
 
-        private IApplicationBuilder? ApplicationBuilder { get; set; } = null;
+        public IApplicationBuilder? ApplicationBuilder { get; set; } = null;
 
         private IHost? Host { get; set; } = null;
 
