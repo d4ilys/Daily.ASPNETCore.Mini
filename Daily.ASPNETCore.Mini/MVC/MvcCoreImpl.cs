@@ -23,13 +23,13 @@ namespace Daily.ASPNETCore.Mini.MVC
     internal class MvcCoreImpl : IMvcCore
     {
         /// <summary>
-        /// 执行MVC
+        /// MVC核心逻辑
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
         public async Task MvcExecutor(HttpContext context)
         {
-            var service = context.RequestService;
+            var service = context.RequestServices;
             object? controller = null;
             try
             {
@@ -272,7 +272,7 @@ namespace Daily.ASPNETCore.Mini.MVC
         /// <returns></returns> 
         private object CreateController(Type type, HttpContext context)
         {
-            var service = context.RequestService;
+            var service = context.RequestServices;
             //构造函数注入
             //获取所有构造函数
             //var constructs = type.GetConstructors();
@@ -316,7 +316,7 @@ namespace Daily.ASPNETCore.Mini.MVC
             string controllerName = string.Empty;
             string actionName = string.Empty;
             bool isSuccess = true;
-            var configuration = context.RequestService.GetService<IConfiguration>();
+            var configuration = context.RequestServices.GetService<IConfiguration>();
             var prefix = string.IsNullOrWhiteSpace(configuration["MvcConfig:RoutPrefix"])
                 ? "api"
                 : configuration["MvcConfig:RoutPrefix"];

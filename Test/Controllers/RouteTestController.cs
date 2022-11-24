@@ -4,7 +4,7 @@ using Daily.ASPNETCore.Mini.MVC.HttpAttribute;
 namespace Test.Controllers
 {
     [DynamicController]
-    [Route("RouteTest")]
+    [Route("RouteTest1")]
     public class RouteTestController
     {
         [HttpGet]

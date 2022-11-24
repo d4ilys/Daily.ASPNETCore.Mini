@@ -12,7 +12,8 @@ namespace Test.Controllers
     public class InjectionTest
     {
         //属性注入
-        [Autowired] public IHttpContextAccessor HttpContextAccessor { get; set; }
+        [Autowired] 
+        public IHttpContextAccessor HttpContextAccessor { get; set; }
 
         //构造函数注入
         public IUserService UserService;
@@ -46,12 +47,12 @@ namespace Test.Controllers
         }
 
         /// <summary>
-        /// 测试HttpContext RequestService
+        /// 测试HttpContext RequestServices
         /// </summary>
         /// <returns></returns>
         public string? TestHttpContextRequestServiceInject()
         {
-           var iTestService =  HttpContextAccessor.HttpContext.RequestService.GetService<ITestService>();
+           var iTestService =  HttpContextAccessor.HttpContext.RequestServices.GetService<ITestService>();
            iTestService.PropertInjectTest();
             return "请看控制台";
         }

@@ -10,7 +10,9 @@ namespace Daily.ASPNETCore.Mini.Host
 
         public Task StartAsync()
         {
+            //容器中获取提前准备好的 NettyServer
             var nettyServer = ApplicationServices.GetService<INettyServer>();
+            //启动
             nettyServer.RunServer(ApplicationServices).GetAwaiter().GetResult();
             return Task.CompletedTask;
         }

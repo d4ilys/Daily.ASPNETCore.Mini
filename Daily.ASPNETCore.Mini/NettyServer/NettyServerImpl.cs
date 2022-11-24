@@ -25,6 +25,7 @@ namespace Daily.ASPNETCore.Mini.NettyServer
             bootstrap.Channel<TcpServerSocketChannel>();
             //配置处理器
             bootstrap.Option(ChannelOption.SoBacklog, 8192);
+            //配置Handler
             bootstrap.ChildHandler(new ActionChannelInitializer<IChannel>(channel =>
             {
                 var channelPipeline = channel.Pipeline;
@@ -43,6 +44,7 @@ namespace Daily.ASPNETCore.Mini.NettyServer
             IPAddress ipAddress = string.IsNullOrWhiteSpace(ipConfig) ? GetTrueIPAddress() : IPAddress.Parse(ipConfig);
             IChannel bootstrapChannel = await bootstrap.BindAsync(ipAddress, Convert.ToInt32(port));
             ConsoleHelper.WriteLine($"Now listening on：http://{ipAddress.ToString()}:{port}..");
+            //阻塞控制台退出
             await WaitServerStopAsync();
             //第六步：停止服务
             await bootstrapChannel.CloseAsync();

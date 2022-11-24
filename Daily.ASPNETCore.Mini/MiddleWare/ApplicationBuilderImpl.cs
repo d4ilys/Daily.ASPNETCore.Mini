@@ -56,6 +56,7 @@ namespace Daily.ASPNETCore.Mini.MiddleWare
                 request = pipeline(request);
             }
             ConsoleHelper.WriteLine($"The pipeline has been assembled complete..");
+            //注意这句话，执行把这个实例化的过程保存在一个委托，并没有真正的实例化
             RequestDelegateProvider.RequestDelegateFuncs.Add(() => new RequestDelegate(request));
         }
     }

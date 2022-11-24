@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Daily.ASPNETCore.Mini\Daily.ASPNETCore.Mini.csproj" />
+  </ItemGroup>
+
 </Project>

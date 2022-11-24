@@ -8,6 +8,6 @@ namespace Daily.ASPNETCore.Mini.HttpContexts
 
         public IFullHttpRequest? Request { get; set; }
 
-        public IServiceProvider? RequestService { get; set; }
+        public IServiceProvider? RequestServices { get; set; }
     }
 }

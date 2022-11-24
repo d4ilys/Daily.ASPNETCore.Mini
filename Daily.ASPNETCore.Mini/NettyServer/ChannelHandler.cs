@@ -28,6 +28,7 @@ namespace Materal.DotNetty.Server.CoreImpl
         protected override void ChannelRead0(IChannelHandlerContext ctx, IFullHttpRequest request)
         {
             request.Retain(byte.MaxValue);
+            //多线程处理Http请求
             Task.Run(async () =>
             {
                 //得到Request开始执行中间件
@@ -36,10 +37,12 @@ namespace Materal.DotNetty.Server.CoreImpl
                 httpContext.Response = new DailyHttpResponse();
                 //AsyncLocal线程安全
                 _contextAccessor.HttpContext = httpContext;
-                //创建Scope
+                //创建Scope 每一个线程都有一个 IServiceProvider
                 using (var serviceScope = _serviceProvider.CreateScope())
                 {
-                    httpContext.RequestService = serviceScope.ServiceProvider;
+                    //HttpContext IServiceProvider 赋值 , 传递到中间件或者控制器使用
+                    httpContext.RequestServices = serviceScope.ServiceProvider;
+                    //创建管道开始执行
                     RequestDelegateProvider.CreateRequestDelegate()(httpContext);
                     //返回Response断开Http连接
                     await SendHttpResponseAsync(ctx, httpContext.Response, httpContext);
