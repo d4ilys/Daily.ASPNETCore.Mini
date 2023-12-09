@@ -1,9 +1,7 @@
-﻿using System.Reflection;
-using Daily.ASPNETCore.Mini;
-using Microsoft.AspNetCore.Builder.Extension;
+﻿using Daily.ASPNETCore.Mini;
 using Daily.ASPNETCore.Mini.Services;
 using Daily.Service.TestServiceaaa;
-using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Builder.Extension;
 using Microsoft.Extensions.DependencyInjection;
 using Services;
 using Test.Fliter;
@@ -21,6 +19,7 @@ builder.Services.AddTransient<ITestService, TestServiceImpl>();
 builder.Services.AddTransient<IUserService, UserServiceImpl>();
 
 WebApplication app = builder.Build();
+
 #region 中间件测试
 
 //最简单的中间件
@@ -51,6 +50,5 @@ app.Use((context, next) =>
 #endregion
 
 app.UseStaticFile();
-
 
 app.Run();

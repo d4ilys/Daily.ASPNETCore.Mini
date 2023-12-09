@@ -12,7 +12,7 @@ namespace Daily.ASPNETCore.Mini.NettyServer
 {
     public class NettyServerImpl : INettyServer
     {
-
+        static ManualResetEvent _shutdown = new ManualResetEvent(false);
         public async Task RunServer(IServiceProvider serviceProvider)
         {
             //创建ServerBootstartp
@@ -57,8 +57,7 @@ namespace Daily.ASPNETCore.Mini.NettyServer
         {
             ConsoleHelper.WriteLine("Application started. Press Ctrl+C to shut down..");
             Console.CancelKeyPress += (sender, e) => { Environment.Exit(0); };
-            while (true)
-                await Task.Delay(100);
+            _shutdown.WaitOne();
         }
 
         /// <summary>
